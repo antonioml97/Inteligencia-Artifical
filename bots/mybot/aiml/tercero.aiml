@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+  <category>
+    <pattern>  Prueba 3 </pattern>
+    <template>  SOy 3   </template>
+  </category>
+
+    <!-- Pide guardar un nuevo evento-->
+    <category>
+      <pattern>  [Agrega Guarda Almacena Añade ] [un una] (nuevo) [cita reunion evento]  </pattern>
+      <template>  Dime la fecha del evento   </template>
+    </category>
+
+    <!--Guardo la fecha del evento-->
+    <category>
+      <pattern>  ^ hoy ^ </pattern>
+      <that>DIME LA FECHA DEL EVENTO</that>
+      <template>
+        Vale, a que hora seria dicho evento?
+      </template>
+    </category>
+
+
+    <!--Guarda la hora del evento-->
+    <category>
+      <pattern>  * </pattern>
+      <that>VALE, A QUE HORA SERIA DICHO EVENTO</that>
+      <template>
+      <think>
+        <set name="hora"> <srai> quitar2puntos <star/> </srai> </set>
+        <set name="hora_f"> <srai> ponerbarrabaja <get name="hora"/> </srai> </set>
+        <set name="llave">
+          <srai> ponerbarrabaja <date jformat="dd/MM/yyyy" /> <get name="hora_f"/> </srai>
+        </set>
+      </think>
+          <srai> ESTA HOY <get name="llave"/> </srai>
+      </template>
+    </category>
+
+    <category>
+      <pattern>Esta hoy * </pattern>
+      <template>
+      Ahora dime el titulo o el nombre del evento
+      </template>
+    </category>
+
+
+    <category>
+      <pattern> Esta hoy <set>fechahora</set></pattern>
+      <template>
+        Ya hay un evento guarado para hoy a esa hora
+      </template>
+    </category>
+
+    <!--Guarda el nombre del evento-->
+    <category>
+      <pattern>  * </pattern>
+      <that> AHORA DIME EL TITULO O EL NOMBRE DEL EVENTO</that>
+      <template>
+      <think>
+        <set name="titulo">
+          <srai>	ponerbarrabaja <star/> </srai>
+        </set>
+        <addtomap>
+          <name>evento</name>
+          <key><get name="llave"/></key>
+          <value><get name="titulo"/></value>
+        </addtomap>
+        <addtoset>
+          <name>fechahora</name>
+          <key><get name="llave"/></key>
+        </addtoset>
+        <set name="libre">0</set>
+        <condition name="contador">
+          <li value="unknown"><set name="contador">0</set></li>
+          <li>
+        <set name="contador">
+          <map name="successor"><get name="contador"/></map>
+        </set>
+        </li>
+      </condition>
+      </think>
+        Vale quieres añadirle algun contacto?
+    </template>
+  </category>
+
+
+<!--Tengo el dia libre-->
+<category>
+  <pattern>Tengo el dia libre (hoy) </pattern>
+  <template>
+    <condition name="libre">
+      <li value="unknown">SI, tienes el dia libre</li>
+      <li> NO, tiene eventos en el dia de hoy</li>
+    </condition>
+  </template>
+</category>
+
+<category>
+  <pattern>Prueba hora </pattern>
+  <template>
+    <xsl:if test="40 &gt; 10">
+      hdfg
+        </xsl:if>
+        DSF
+  </template>
+</category>
+
+
+
+<!--Cuanndo tengo algo con algun contacto-->
+<category>
+  <pattern> Cuando tengo (una) (un) [cita reunion evento] con (el) (contacto) * </pattern>
+  <template>
+      Contacto: <set name="contacto"> <srai> ponerbarrabaja <star/> </srai> </set>
+      Conjunto de llave de contactos: <set name="conjunto"> <readkeys>contacto</readkeys></set>
+      Cogo una llave: <set name="cita"> <srai> TOP <get name="conjunto"/> </srai> </set>
+      Cogo el resto de las llaves: <set name="resto_cita"> <srai> REMAIN <get name="conjunto"/> </srai> </set>
+      Pillo unos posibles contactos <set name="candidatos"> <map name="contacto"><get name="cita"/></map> </set>
+      Pillo un posible candidato:<set name="posible"> <srai> TOP <get name="candidatos"/> </srai> </set>
+      Pillo los candidatos restantes: <set name="resto_posible"> <srai> REMAIN <get name="candidatos"/> </srai> </set>
+
+      <condition name="posible">
+        <li><value>$</value>
+          No tienes cita con ese contacto
+      </li>
+      <li><value><get name="contacto"/></value>
+
+          Ayuda:    <set name="ayuda"> <srai>	quitarespacios <get name="cita"/> </srai>  </set>
+            dia:  <set name="formato_dia"> <srai>	TOP <get name="ayuda"/> </srai>  </set>
+            Ayuda:  <set name="ayuda_hora"> <srai>	REMAIN <get name="ayuda"/> </srai>  </set>
+            gora_  <set name="formato_hora"> <srai>	poner2puntos <get name="ayuda_hora"/> </srai>  </set>
+
+          Tienes un evento con el contacto <star/> el dia <get name="formato_dia"/> a la hora  <get name="formato_hora"/>
+    </li>
+    <li>
+
+
+        <condition name="resto_posible">
+          <li value="$">
+            Cogo la siguiente cita
+            Cita: <set name="cita"> <srai> TOP <get name="resto_cita"/> </srai> </set>
+            Resto: <set name="resto_cita"> <srai> REMAIN <get name="resto_cita"/> </srai> </set>
+            Nuevos contactos: <set name="candidato"> <map name="contacto"><get name="cita"/></map> </set>
+            Pillo los candidatos restantes: <set name="aux">  <get name="candidato"/>  </set>
+            <set name="resto_posible"> <get name="resto_posible"/> <get name="aux"/>  </set>
+
+            <set name="aux2">$</set>
+            <set name="aux3"><srai> TOP <get name="resto_posible"/> </srai> </set>
+            <condition name="aux3">
+              <li><value><get name="aux2"/></value>
+              dsfg
+              <srai> REMOVEITEM 1 IN <get name="resto_posible"/>  </srai>
+                <set name="aux3"><srai> TOP <get name="resto_posible"/> </srai> </set>
+              </li>
+              <li>
+
+            Pillo un posible candidato:<set name="posible"> <srai> TOP <get name="resto_posible"/> </srai> </set>
+          </li>
+          </condition>
+            Pillo los candidatos restantes: <set name="resto_posible"> <srai> REMAIN <get name="resto_posible"/> </srai> </set>
+
+        </li>
+          <li>
+              NO esta vacia
+              Posible en bucle:<set name="posible"> <srai> TOP <get name="resto_posible"/> </srai> </set>
+              Resto de posbiles en bucle:<set name="resto_posible"> <srai> REMAIN <get name="resto_posible"/> </srai> </set>
+
+          </li>
+
+        </condition>
+
+      <loop/>
+    </li>
+  </condition>
+  </template>
+</category>
+
+
+<!---->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--Poner 2 puntos-->
+  <category>
+	<pattern> poner2puntos * </pattern>
+	<template>
+	  <think>
+		<set var="tmp"><star/></set>
+		<set var="solucion"><first><get var="tmp"/></first></set>
+		<set var="tmp"><rest><get var="tmp"/></rest></set>
+		<condition var="tmp">
+			<li value="NIL">
+			</li>
+			<li>
+				<set var="solucion"><get var="solucion"/>:<first><get var="tmp"/></first></set>
+				<set var="tmp"><rest><get var="tmp"/></rest></set>
+				<loop/>
+			</li>
+		</condition>
+	  </think>
+	<get var="solucion"/>
+	</template>
+	</category>
+
+</aiml>
